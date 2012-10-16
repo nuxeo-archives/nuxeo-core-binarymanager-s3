@@ -57,6 +57,7 @@ import com.amazonaws.services.s3.model.EncryptionMaterials;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
@@ -98,6 +99,8 @@ public class S3BinaryManager extends AbstractBinaryManager {
 
     public static final String PRIVKEY_PASS_KEY = "nuxeo.s3storage.crypt.key.password";
 
+    public static final String SERVERSIDE_ENCRYPTION = "nuxeo.s3storage.crypt.serverside";
+
     // TODO define these constants globally somewhere
     public static final String PROXY_HOST_KEY = "nuxeo.http.proxy.host";
 
@@ -127,6 +130,8 @@ public class S3BinaryManager extends AbstractBinaryManager {
 
     protected AmazonS3 amazonS3;
 
+    protected boolean useServerSideEncryption = false;
+
     @Override
     public void initialize(RepositoryDescriptor repositoryDescriptor)
             throws IOException {
@@ -149,7 +154,11 @@ public class S3BinaryManager extends AbstractBinaryManager {
         String proxyPort = Framework.getProperty(PROXY_PORT_KEY);
         String proxyLogin = Framework.getProperty(PROXY_LOGIN_KEY);
         String proxyPassword = Framework.getProperty(PROXY_PASSWORD_KEY);
-
+        String serverSideEncryptionProperty = Framework.getProperty(SERVERSIDE_ENCRYPTION);
+        if (serverSideEncryptionProperty != null
+                && !serverSideEncryptionProperty.isEmpty()) {
+            useServerSideEncryption = Boolean.valueOf(serverSideEncryptionProperty);
+        }
         String cacheSizeStr = Framework.getProperty(CACHE_SIZE_KEY);
         if (isBlank(cacheSizeStr)) {
             cacheSizeStr = DEFAULT_CACHE_SIZE;
@@ -316,8 +325,13 @@ public class S3BinaryManager extends AbstractBinaryManager {
                         digest, bucketName));
                 Split split = SimonManager.getStopwatch(
                         this.getClass().getName() + ".upload").start();
-                PutObjectResult result = amazonS3.putObject(bucketName, digest,
-                        tmp);
+                PutObjectRequest putRequest = new PutObjectRequest(bucketName, digest, tmp);
+                ObjectMetadata objectMetadata = new ObjectMetadata();
+                if (useServerSideEncryption ) {
+                    objectMetadata.setServerSideEncryption(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
+                }
+                putRequest.setMetadata(objectMetadata);
+                PutObjectResult result = amazonS3.putObject(putRequest);
                 Double duration = split.stop() / 1e9;
                 Double sizeMB = tmp.length() / 1e6;
                 log.debug(String.format(
