@@ -64,7 +64,7 @@ public class TestS3BinaryManager extends NXRuntimeTestCase {
 
     protected boolean DISABLED = true;
 
-    protected S3BinaryManager binaryManager;
+    protected AbstractS3BinaryManager binaryManager;
 
     @Override
     public void setUp() throws Exception {
@@ -72,12 +72,12 @@ public class TestS3BinaryManager extends NXRuntimeTestCase {
         Properties properties = Framework.getProperties();
         // NOTE THAT THE TESTS WILL REMOVE ALL FILES IN THE BUCKET!!!
         // ********** NEVER COMMIT THE SECRET KEYS !!! **********
-        properties.setProperty(S3BinaryManager.BUCKET_NAME_KEY, "CHANGETHIS");
-        properties.setProperty(S3BinaryManager.AWS_ID_KEY, "CHANGETHIS");
-        properties.setProperty(S3BinaryManager.AWS_SECRET_KEY, "CHANGETHIS");
+        properties.setProperty(AbstractS3BinaryManager.BUCKET_NAME_KEY, "CHANGETHIS");
+        properties.setProperty(AbstractS3BinaryManager.AWS_ID_KEY, "CHANGETHIS");
+        properties.setProperty(AbstractS3BinaryManager.AWS_SECRET_KEY, "CHANGETHIS");
         // ********** NEVER COMMIT THE SECRET KEYS !!! **********
 
-        DISABLED = "CHANGETHIS".equals(Framework.getProperty(S3BinaryManager.BUCKET_NAME_KEY));
+        DISABLED = "CHANGETHIS".equals(Framework.getProperty(AbstractS3BinaryManager.BUCKET_NAME_KEY));
         if (!DISABLED) {
             binaryManager = new S3BinaryManager();
             binaryManager.initialize(new RepositoryDescriptor());
