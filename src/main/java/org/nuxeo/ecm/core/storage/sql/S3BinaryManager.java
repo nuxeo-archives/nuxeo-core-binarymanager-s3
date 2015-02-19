@@ -287,11 +287,15 @@ public class S3BinaryManager extends CachingBinaryManager {
         dir.mkdir();
         dir.deleteOnExit();
         long cacheSize = SizeUtils.parseSizeInBytes(cacheSizeStr);
-        initializeCache(dir, cacheSize, new S3FileStorage());
+        initializeCache(dir, cacheSize, getStorage());
         log.info("Using binary cache directory: " + dir.getPath() + " size: "
                 + cacheSizeStr);
 
         createGarbageCollector();
+    }
+
+    protected FileStorage getStorage() {
+        return new S3FileStorage();
     }
 
     /**
