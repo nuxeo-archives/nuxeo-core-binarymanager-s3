@@ -1,3 +1,5 @@
+# DEPRECATED: see [https://github.com/nuxeo/nuxeo-core-binarymanager-cloud]()
+
 This addon implements a BinaryManager that stores binaries in a S3 bucket.
 For efficiency, a local disk cache (with limited size) is also used.
 
