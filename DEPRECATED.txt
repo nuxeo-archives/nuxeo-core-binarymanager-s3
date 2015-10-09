@@ -1,0 +1,2 @@
+The nuxeo-core-binarymanager-s3 repository is DEPRECATED, continued in nuxeo-core-binarymanager-cloud
+See https://github.com/nuxeo/nuxeo-core-binarymanager-cloud
